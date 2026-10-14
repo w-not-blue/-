@@ -1,0 +1,55 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# ---- 虚拟环境 ----
+.venv/
+venv/
+env/
+ENV/
+
+# ---- IDE / 工具 ----
+.idea/
+.vscode/
+*.iml
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# ---- 运行时产物（可重新生成，不入库）----
+logs/
+data/runs/
+data/runs.db
+reports/*.png
+tmp/
+*.log
+
+# ---- 原始数据快照（体量大且版权归发布方，只入库派生统计量）----
+data/raw/
+
+# ---- 密钥（绝不入库）----
+config/deepseek.key
+.env
+
+# ---- 账号库与运行索引（含个人账号信息）----
+data/users.db
+data/users.db-shm
+data/users.db-wal
+data/.session_secret
+
+# ---- 系统垃圾 ----
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# ---- 浏览器测试用的临时 profile ----
+data/edge-mic-profile/
+data/edge-mic-real-profile/

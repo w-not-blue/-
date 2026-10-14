@@ -1,0 +1,57 @@
+# 核心依赖
+numpy>=1.24.0
+scipy>=1.10.0
+matplotlib>=3.7.0
+pandas>=2.0.0
+
+# 可视化
+seaborn>=0.12.0
+plotly>=5.15.0
+
+# Jupyter
+jupyter>=1.0.0
+ipython>=8.12.0
+
+# 配置管理
+PyYAML>=6.0
+
+# Excel 导出（pandas 写 .xlsx 的默认引擎）
+openpyxl>=3.1.0
+
+# 系统监控与环境检测
+psutil>=5.9.0
+
+# 测试
+pytest>=7.4.0
+pytest-cov>=4.1.0
+
+# 图形验证码
+Pillow>=10.0.0
+
+# Web API
+Flask>=2.3.0
+Flask-CORS>=4.0.0
+requests>=2.31.0
+urllib3>=1.26.0
+
+# 跨语言接口（可选）
+# grpcio>=1.56.0
+# grpcio-tools>=1.56.0
+
+# 可选依赖
+deap>=1.3.0
+scikit-learn>=1.2.0
+
+# 国产硬件适配（可选）
+# torch>=2.0.0       # CUDA/NPU推理
+# torch_npu>=2.0.0   # 华为昇腾NPU
+
+# ============================================================================
+# GitHub Skills 集成（可选）— RL/Meta-heuristic 调度算法增强
+# ----------------------------------------------------------------------------
+# 安装方法：pip install gymnasium stable-baselines3 pymoo
+# 不安装时，对应插件会自动降级为 PluginResult.fail(DEPENDENCY_MISSING)
+# ============================================================================
+# gymnasium>=1.0          # RL 环境标准 API (Farama-Foundation, MIT)
+# stable-baselines3>=2.0  # RL 算法实现 (DLR-RM, MIT)
+# pymoo>=0.6              # 多目标优化 NSGA2/MOEAD/PSO (Apache 2.0)

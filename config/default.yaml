@@ -1,0 +1,146 @@
+simulation:
+  num_servers: 48
+  min_servers: 1
+  max_servers: 1000
+  simulation_hours: 24
+  min_simulation_hours: 1
+  max_simulation_hours: 720
+  random_seed: 42
+  parallel_workers: 4
+  enable_distributed: false
+  distributed_workers: 8
+  run_mode: "standard"
+  sla_slack: 1.5
+
+data_source:
+  mode: "catalog"
+  catalog_db: "data/catalog.db"
+  site_id: "北京市"
+  ambient_start_hour: 4344
+  trace_id: "alibaba-gpu-v2025-d019-168h"
+
+environment:
+  ambient_temp_base: 15
+  ambient_temp_amplitude: 10
+  humidity: 0.5
+
+cooling:
+  power_coefficient: 500
+  cooling_efficiency: 0.9
+  capacity_rating_w: 20000
+  target_temp: 22
+  fan_target_temp: 35
+  dissipation_coefficient: 8.0
+  thermal_inertia: 0.25
+  room_volume: 100
+  air_flow_rate: 10
+  fan_speed_range: [0.2, 1.0]
+  fan_efficiency_curve: "quadratic"
+
+greedy:
+  temperature_weight: 0.3
+  overload_threshold: 0.95
+  overheat_threshold: 0.95
+  load_balancing_factor: 0.7
+  temperature_balancing_factor: 0.3
+  enable_priority_scheduling: true
+  priority_weight: 0.5
+
+damo_ets:
+  alpha_deadline: 0.35
+  beta_energy: 0.25
+  gamma_thermal: 0.20
+  delta_heterogeneity: 0.15
+  epsilon_migration: 0.05
+  heat_coefficient: 15.0
+  thermal_safety_factor: 0.95
+  workload_server_match:
+    gpu_bound: ["gpu_server", "high_performance"]
+    cpu_bound: ["high_performance", "standard"]
+    memory_bound: ["standard"]
+    io_bound: ["standard"]
+
+genetic:
+  population_size: 50
+  max_population_size: 200
+  generations: 100
+  max_generations: 500
+  crossover_rate: 0.8
+  mutation_rate: 0.1
+  elitism_rate: 0.1
+  overload_penalty: 100
+  overheat_penalty: 200
+  energy_weight: 0.5
+  temperature_weight: 0.3
+  load_weight: 0.2
+  enable_parallel: false
+  parallel_evaluators: 1
+
+task_generation:
+  base_rate: 6
+  peak_rate: 20
+  peak_hours: [9, 18]
+  load_range: [5, 30]
+  priority_range: [1, 5]
+  task_types:
+    - name: "cpu_bound"
+      proportion: 0.4
+      load_range: [10, 50]
+      duration_range: [1, 5]
+    - name: "gpu_bound"
+      proportion: 0.3
+      load_range: [20, 80]
+      duration_range: [2, 10]
+    - name: "memory_bound"
+      proportion: 0.2
+      load_range: [5, 25]
+      duration_range: [3, 8]
+    - name: "io_bound"
+      proportion: 0.1
+      load_range: [3, 15]
+      duration_range: [1, 3]
+
+task_completion:
+  mode: "service_based"
+  completion_probability: 0.3
+  completion_rate_adjustment: 0.1
+
+energy:
+  cop_base: 2.5
+  cop_delta_coefficient: 0.1
+  heat_to_power_ratio: 0.8
+  pue_base: 1.8
+  idle_power_factor: 0.6
+  part_load_penalty: 0.5
+  temp_penalty_coefficient: 1.0
+  temp_reference: 35
+
+server_types:
+  - name: "standard"
+    proportion: 0.6
+    max_load: 100
+    max_temp: 85
+    base_power: 100
+    max_power: 300
+    efficiency: 0.85
+  - name: "high_performance"
+    proportion: 0.25
+    max_load: 200
+    max_temp: 80
+    base_power: 200
+    max_power: 500
+    efficiency: 0.90
+  - name: "gpu_server"
+    proportion: 0.15
+    max_load: 300
+    max_temp: 75
+    base_power: 300
+    max_power: 800
+    efficiency: 0.88
+
+output:
+  data_dir: "data"
+  reports_dir: "reports"
+  enable_visualization: true
+  enable_statistics: true
+  enable_detailed_logging: false

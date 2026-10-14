@@ -1,0 +1,21 @@
+simulation:
+  num_servers: 50
+  simulation_hours: 48
+  parallel_workers: 4
+  enable_distributed: false
+  run_mode: "standard"
+
+genetic:
+  population_size: 50
+  generations: 100
+  enable_parallel: false
+  parallel_evaluators: 1
+
+output:
+  enable_visualization: true
+  enable_statistics: true
+  enable_detailed_logging: true
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
