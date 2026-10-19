@@ -1,0 +1,4 @@
+hour,load_units,priority,workload_class,duration_h,deadline_offset_h
+0,32,3,cpu_bound,2,3
+0,18,5,gpu_bound,6,9
+1,25,2,memory_bound,4,6

@@ -1,0 +1,4 @@
+province,year,period_type,hour_start,hour_end,price_cny_per_kwh
+示例省,2026,peak,8,11,1.05
+示例省,2026,flat,11,18,0.68
+示例省,2026,valley,23,7,0.35

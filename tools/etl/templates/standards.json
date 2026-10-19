@@ -1,0 +1,9 @@
+{
+  "source_id": "example-standards",
+  "name": "能效标准参照（占位，数值须查标准正文）",
+  "publisher": "示例发布方",
+  "url": "https://example.invalid/please-replace",
+  "license": "请填写实际授权条款",
+  "retrieved_at": "2026-10-15",
+  "note": "pue_limit 必须按标准原文填写"
+}
