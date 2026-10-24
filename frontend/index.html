@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>运维控制台 - 校园数据中心智能调度系统</title>
+    <meta name="description" content="校园数据中心智能散热与算力调度系统">
+    <meta name="theme-color" content="#ddebfa">
+    <meta name="color-scheme" content="light">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="算力调度">
+    <link rel="manifest" href="/manifest.json?v=20261020-ui3">
+    <link rel="apple-touch-icon" href="/static/icons/icon-192x192.png?v=20261020-ai91">
+    <link rel="icon" type="image/png" sizes="192x192" href="/static/icons/icon-192x192.png?v=20261020-ai91">
+    <link href="/bootstrap.min.css" rel="stylesheet">
+    <link href="/font-awesome.min.css" rel="stylesheet">
+    <link href="/cross_platform.css" rel="stylesheet">
+    <link href="/theme.css?v=20261024-radar4" rel="stylesheet">
+</head>
+<body>
+<script>
+(function(){var u=navigator.userAgent;var h=document.documentElement;if(/Android/i.test(u))h.classList.add('android-platform');else if(/iPhone|iPad|iPod/i.test(u))h.classList.add('ios-platform');else if(/Macintosh/i.test(u)&&navigator.maxTouchPoints>0)h.classList.add('ios-platform')})();
+</script>
+
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <img class="brand-logo" src="/logo.png?v=20261020-ai91" alt="">
+            <span class="brand-name">校园数据中心智能散热与<br>算力调度系统</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a class="nav-item active" href="#dashboard"><span>实时仪表盘</span></a>
+            <a class="nav-item" href="#charts"><span>数据分析</span></a>
+            <a class="nav-item" href="#prediction"><span>AI 情景预测</span></a>
+            <a class="nav-item" href="/map.html"><span>分布图</span></a>
+            <a class="nav-item" href="#ai"><span>AI 诊断与寻优</span></a>
+            <a class="nav-item" href="#plugins"><span>插件管理</span></a>
+            <a class="nav-item" href="#control"><span>仿真控制</span></a>
+            <a class="nav-item" href="/profile.html"><span>个人中心</span></a>
+            <div class="sidebar-divider"></div>
+            <a class="nav-item" href="/speech_to_text.html" target="_blank"><span>语音转文字</span></a>
+            <a class="nav-item" href="/download.html" target="_blank"><span>应用下载</span></a>
+        </nav>
+        <div class="sidebar-foot">
+            <div>版本 v1.0.0</div>
+        </div>
+    </aside>
+
+    <div class="app-main">
+        <header class="topbar">
+            <button class="sidebar-toggle" type="button" id="sidebarToggle" aria-label="展开导航">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1 class="page-title">实时仪表盘</h1>
+            <div class="topbar-right">
+                <span id="status" class="badge bg-success">系统在线</span>
+                <div class="user-menu dropdown" id="userMenu">
+                    <button class="user-menu-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="账号菜单">
+                        <span class="user-avatar" id="userAvatar">Y</span>
+                        <span class="user-name" id="userName">yumo</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><span class="dropdown-item-text user-menu-label">已登录：<strong id="menuUserName">yumo</strong></span></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/profile.html">个人中心</a></li>
+                        <li><button type="button" class="dropdown-item" id="logoutBtn">退出登录</button></li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+
+        <main class="content">
+
+            <section id="dashboard" class="mb-6">
+                <h2>实时仪表盘</h2>
+                <div class="row g-3">
+                    <div class="col-6 col-xl-3">
+                        <div class="kpi energy">
+                            <span class="kpi-label">最优能耗（跨算法）</span>
+                            <div class="kpi-value"><span id="avg-energy">--</span><span class="kpi-unit">W</span></div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-xl-3">
+                        <div class="kpi temp">
+                            <span class="kpi-label">最低峰值温度</span>
+                            <div class="kpi-value"><span id="max-temp">--</span><span class="kpi-unit">°C</span></div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-xl-3">
+                        <div class="kpi pue">
+                            <span class="kpi-label">最优 PUE</span>
+                            <div class="kpi-value"><span id="avg-pue">--</span></div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-xl-3">
+                        <div class="kpi load">
+                            <span class="kpi-label">集群总负载</span>
+                            <div class="kpi-value"><span id="total-load">--</span></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="charts" class="mb-6">
+                <div class="section-head">
+                    <h2>数据分析</h2>
+                </div>
+                <div class="row g-3">
+                    <div class="col-xl-6">
+                        <div class="card">
+                            <div class="card-header"><h5>能耗对比</h5><span class="panel-hint">单位 W</span></div>
+                            <div class="card-body"><div class="chart-container"><canvas id="energyChart"></canvas></div></div>
+                        </div>
+                    </div>
+                    <div class="col-xl-6">
+                        <div class="card">
+                            <div class="card-header"><h5>温度趋势</h5><span class="panel-hint">单位 °C</span></div>
+                            <div class="card-body"><div class="chart-container"><canvas id="tempChart"></canvas></div></div>
+                        </div>
+                    </div>
+                    <div class="col-xl-6">
+                        <div class="card">
+                            <div class="card-header"><h5>负载分布</h5><span class="panel-hint">集群总负载</span></div>
+                            <div class="card-body"><div class="chart-container"><canvas id="loadChart"></canvas></div></div>
+                        </div>
+                    </div>
+                    <div class="col-xl-6">
+                        <div class="card">
+                            <div class="card-header"><h5>PUE 对比</h5><span class="panel-hint">理想值 1.0</span></div>
+                            <div class="card-body"><div class="chart-container"><canvas id="pueChart"></canvas></div></div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header"><h5>算法综合性能</h5><span class="panel-hint">选择算法查看 · 0=最低 100=最高</span></div>
+                            <div class="card-body">
+                                <div class="algorithm-radar-toolbar"><div id="algorithmScoreTabs" class="algorithm-score-tabs"></div></div>
+                                <div class="chart-container tall"><canvas id="radarChart"></canvas></div>
+                                <div id="algorithmRadarSummary" class="algorithm-radar-summary"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header"><h5>算法指标对比</h5><span class="panel-hint">含任务服务率</span></div>
+                            <div class="card-body">
+                                <div class="table-wrap">
+                                <table class="data-table" id="metricsTable">
+                                    <thead>
+                                        <tr><th>算法</th><th>平均能耗 (W)</th><th>峰值温度 (°C)</th><th>平均 PUE</th><th>总负载</th><th>任务服务率</th><th>单位负载能耗</th><th>排名</th></tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                                </div>
+                                <div class="ranking-block">
+                                    <h6>受控排名（同任务流 · 同种子 · 服务率门槛）</h6>
+                                    <ul class="ranking-list" id="rankingList"></ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="prediction" class="mb-6">
+                <h2>AI 情景预测</h2>
+                <div class="card">
+                    <div class="card-header">
+                        <h5>未来时段 PUE / 能耗 / 温度预测</h5>
+                        <span class="panel-hint">基于当地气象与 2025 任务流的受控仿真</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="prediction-toolbar">
+                            <div class="prediction-field">
+                                <label for="predictServers">服务器数量</label>
+                                <input type="number" id="predictServers" class="form-control" value="48" min="1" max="1000">
+                            </div>
+                            <div class="prediction-field">
+                                <label for="predictHours">预测时长</label>
+                                <select id="predictHours" class="form-select">
+                                    <option value="6">6 小时</option>
+                                    <option value="12">12 小时</option>
+                                    <option value="24" selected>24 小时</option>
+                                    <option value="48">48 小时</option>
+                                </select>
+                            </div>
+                            <div class="prediction-field">
+                                <label for="predictAlgorithms">预测算法</label>
+                                <select id="predictAlgorithms" class="form-select">
+                                    <option value="core" selected>全部算法（6 个）</option>
+                                    <option value="greedy">贪心算法</option>
+                                    <option value="genetic">遗传算法</option>
+                                    <option value="round_robin">轮询算法</option>
+                                    <option value="damo_ets">DAMO-ETS 能效调度</option>
+                                    <option value="nsga2">NSGA-II</option>
+                                    <option value="moead">MOEA-D</option>
+                                    <option value="custom">自定义算法</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary prediction-run" type="button" id="predictBtn">
+                                <i class="fas fa-play me-1"></i>生成预测
+                            </button>
+                        </div>
+                        <div class="prediction-custom" id="predictCustomAlgorithms" hidden>
+                            <div class="prediction-custom-head">
+                                <span>选择参与预测的算法</span>
+                                <span id="predictCustomCount">已选 6 个</span>
+                            </div>
+                            <div class="chip-group prediction-custom-chips">
+                                <label class="chip"><input type="checkbox" name="predictAlgorithm" value="greedy" checked><span class="chip-dot"><i class="fas fa-check"></i></span><span class="chip-label">贪心算法</span></label>
+                                <label class="chip"><input type="checkbox" name="predictAlgorithm" value="genetic" checked><span class="chip-dot"><i class="fas fa-check"></i></span><span class="chip-label">遗传算法</span></label>
+                                <label class="chip"><input type="checkbox" name="predictAlgorithm" value="round_robin" checked><span class="chip-dot"><i class="fas fa-check"></i></span><span class="chip-label">轮询算法</span></label>
+                                <label class="chip"><input type="checkbox" name="predictAlgorithm" value="damo_ets" checked><span class="chip-dot"><i class="fas fa-check"></i></span><span class="chip-label">DAMO-ETS</span></label>
+                                <label class="chip"><input type="checkbox" name="predictAlgorithm" value="nsga2" checked><span class="chip-dot"><i class="fas fa-check"></i></span><span class="chip-label">NSGA-II</span></label>
+                                <label class="chip"><input type="checkbox" name="predictAlgorithm" value="moead" checked><span class="chip-dot"><i class="fas fa-check"></i></span><span class="chip-label">MOEA-D</span></label>
+                            </div>
+                        </div>
+                        <div class="prediction-context" id="predictContext">当前站点：北京市 · 学校：未选择（使用城市）</div>
+                        <div class="prediction-error" id="predictError" hidden></div>
+                        <div class="prediction-empty" id="predictEmpty">
+                            点击「生成预测」，使用控制中心当前城市/学校，计算未来时段的 PUE、能耗和峰值温度。
+                        </div>
+                        <div id="predictResult" hidden>
+                            <div class="row g-3" id="predictKpis"></div>
+                            <div class="prediction-table-wrap" id="predictTable"></div>
+                            <div class="prediction-chart-head">
+                                <span>各算法预测曲线</span>
+                                <select id="predictChartMetric" class="form-select" aria-label="预测图表指标">
+                                    <option value="pue" selected>平均 PUE</option>
+                                    <option value="peak_temperature">峰值温度</option>
+                                </select>
+                            </div>
+                            <div class="chart-container prediction-chart">
+                                <canvas id="predictChart"></canvas>
+                            </div>
+                            <div class="prediction-explanation" id="predictExplanation"></div>
+                            <ul class="prediction-assumptions" id="predictAssumptions"></ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="ai" class="mb-6">
+                <h2>AI 诊断与寻优</h2>
+                <div class="card">
+                    <div class="card-header">
+                        <h5>调度诊断与参数建议</h5>
+                        <span class="panel-hint" id="aiEngine">检测引擎中</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="ai-toolbar">
+                            <input type="text" class="form-control" id="aiPrompt" maxlength="200" placeholder="用一句话描述目标，例如：压住温度，300 台服务器跑三天">
+                            <button class="btn btn-primary" type="button" id="aiParseBtn">解析为参数</button>
+                            <button class="btn btn-secondary" type="button" id="aiAnalyzeBtn">生成诊断</button>
+                        </div>
+                        <div class="ai-notes" id="aiNotes"></div>
+                        <div class="ai-result" id="aiResult">
+                            <p class="ai-empty">点击「生成诊断」，基于当前仿真指标给出分析与调参建议</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card mt-3" id="planOptimizerCard">
+                    <div class="card-header">
+                        <h5>AI 方案寻优</h5>
+                        <span class="panel-hint" id="optHeaderHint">目标驱动，自动搜索配置组合</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="opt-tabs" role="tablist">
+                            <button class="opt-tab is-active" type="button" data-opt-tab="global">全局寻优</button>
+                            <button class="opt-tab" type="button" data-opt-tab="quick">快速调参</button>
+                        </div>
+                        <div id="optGlobalPanel">
+                            <div class="opt-grid">
+                                <label class="opt-field">
+                                    <span>服务器范围</span>
+                                    <span class="opt-range">
+                                        <input type="number" class="form-control" id="optServerMin" value="48" min="4" max="500" aria-label="最小服务器数">
+                                        <em>—</em>
+                                        <input type="number" class="form-control" id="optServerMax" value="80" min="4" max="500" aria-label="最大服务器数">
+                                    </span>
+                                </label>
+                                <label class="opt-field">
+                                    <span>仿真时长</span>
+                                    <input type="number" class="form-control" id="optHours" value="24" min="1" max="72" aria-label="仿真时长">
+                                </label>
+                                <label class="opt-field">
+                                    <span>优化目标</span>
+                                    <select class="form-select" id="optTarget">
+                                        <option value="balanced" selected>综合均衡</option>
+                                        <option value="pue">平均 PUE 最低</option>
+                                        <option value="energy">单位能耗最低</option>
+                                        <option value="temp">峰值温度最低</option>
+                                    </select>
+                                </label>
+                                <label class="opt-field">
+                                    <span>服务率门槛</span>
+                                    <span class="opt-unit">
+                                        <input type="number" class="form-control" id="optServiceFloor" value="98" min="80" max="100" step="0.5" aria-label="服务率门槛">
+                                        <em>%</em>
+                                    </span>
+                                </label>
+                                <label class="opt-field">
+                                    <span>峰值温度上限</span>
+                                    <span class="opt-unit">
+                                        <input type="number" class="form-control" id="optMaxTemp" min="20" max="100" placeholder="可不填" aria-label="峰值温度上限">
+                                        <em>℃</em>
+                                    </span>
+                                </label>
+                            </div>
+                            <div class="opt-algorithms">
+                                <span class="opt-label">参与算法</span>
+                                <div class="chip-group">
+                                    <label class="chip"><input type="checkbox" name="optAlgorithms" value="greedy" checked><span class="chip-dot"><i class="fas fa-check"></i></span><span class="chip-label">贪心算法</span></label>
+                                    <label class="chip"><input type="checkbox" name="optAlgorithms" value="genetic" checked><span class="chip-dot"><i class="fas fa-check"></i></span><span class="chip-label">遗传算法</span></label>
+                                    <label class="chip"><input type="checkbox" name="optAlgorithms" value="round_robin" checked><span class="chip-dot"><i class="fas fa-check"></i></span><span class="chip-label">轮询算法</span></label>
+                                    <label class="chip"><input type="checkbox" name="optAlgorithms" value="damo_ets" checked><span class="chip-dot"><i class="fas fa-check"></i></span><span class="chip-label">DAMO-ETS</span></label>
+                                    <label class="chip"><input type="checkbox" name="optAlgorithms" value="nsga2"><span class="chip-dot"><i class="fas fa-check"></i></span><span class="chip-label">NSGA-II</span></label>
+                                    <label class="chip"><input type="checkbox" name="optAlgorithms" value="moead"><span class="chip-dot"><i class="fas fa-check"></i></span><span class="chip-label">MOEA-D</span></label>
+                                </div>
+                                <label class="opt-check"><input type="checkbox" id="optWeights" checked> 同时优化 DAMO 权重</label>
+                                <button class="btn btn-primary" type="button" id="optStartBtn"><i class="fas fa-play me-1"></i>开始全局寻优</button>
+                            </div>
+                            <div class="opt-progress" id="optProgress" hidden>
+                                <div class="opt-progress-head">
+                                    <span id="optProgressText">准备中</span>
+                                    <span id="optProgressPct">0%</span>
+                                </div>
+                                <div class="progress"><div class="progress-bar" id="optProgressBar" style="width:0%"></div></div>
+                            </div>
+                            <div class="ai-notes" id="optNotes"></div>
+                            <div id="optResult">
+                                <p class="ai-empty">按目标搜索服务器数量、算法与 DAMO 权重组合，输出前 3 个 Pareto 方案；推荐方案可一键应用并运行。</p>
+                            </div>
+                        </div>
+                        <div id="optQuickPanel" hidden>
+                            <div class="ai-toolbar">
+                                <input type="number" class="form-control" id="tuneServers" value="100" min="10" max="1000" placeholder="服务器数量" aria-label="服务器数量">
+                                <input type="number" class="form-control" id="tuneHours" value="24" min="1" max="720" placeholder="仿真时长" aria-label="仿真时长">
+                                <button class="btn btn-primary" type="button" id="tuneBtn">开始寻优</button>
+                                <button class="btn btn-secondary" type="button" id="applyTuneBtn" disabled>应用最优权重</button>
+                            </div>
+                            <div class="ai-notes" id="tuneNotes"></div>
+                            <div id="tuneResult">
+                                <p class="ai-empty">枚举 8 组代表性权重方案，按「服务率达标 + 能耗与温度综合最优」选出推荐方案</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="plugins" class="mb-6">
+                <h2>插件管理</h2>
+                <div class="row g-3" id="pluginsContainer">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="empty-state">
+                                    <div class="spinner-ring"></div>
+                                    <p style="margin:0;">正在加载插件列表</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="control">
+                <h2>仿真控制</h2>
+                <div class="card">
+                    <div class="card-body">
+                        <form id="simulationForm">
+                            <div class="row g-3">
+                                <div class="col-6 col-xl-3">
+                                    <label class="form-label" for="numServers">服务器数量 <span class="text-muted">1 - 1000</span></label>
+                                    <input type="number" class="form-control" id="numServers" value="10" min="1" max="1000">
+                                </div>
+                                <div class="col-6 col-xl-3">
+                                    <label class="form-label" for="simHours">仿真时长 <span class="text-muted">1 - 720 小时</span></label>
+                                    <input type="number" class="form-control" id="simHours" value="24" min="1" max="720">
+                                </div>
+                                <div class="col-6 col-xl-3">
+                                    <label class="form-label" for="parallelWorkers">并行工作器 <span class="text-muted">1 - 32</span></label>
+                                    <input type="number" class="form-control" id="parallelWorkers" value="4" min="1" max="32">
+                                </div>
+                                <div class="col-6 col-xl-3">
+                                    <label class="form-label" for="runMode">运行模式</label>
+                                    <select class="form-select" id="runMode">
+                                        <option value="standard">标准模式</option>
+                                        <option value="distributed">分布式模式</option>
+                                        <option value="large_scale">大规模测试</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row g-3 mt-2">
+                                <div class="col-xl-4">
+                                    <label class="form-label" for="citySearch">所在城市 <span class="text-muted">输入一个字即可搜索</span></label>
+                                    <div class="combo-wrap">
+                                        <input type="text" class="form-control" id="citySearch" placeholder="如：北京 / 三亚" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="cityCombo">
+                                        <div class="combo-panel" id="cityCombo" role="listbox" hidden></div>
+                                    </div>
+                                    <div class="form-text" id="cityHint">选择城市后按当地气温重算</div>
+                                </div>
+                                <div class="col-xl-8">
+                                    <label class="form-label" for="schoolSearch">学校名称 <span class="text-muted">可输入一个字筛选</span></label>
+                                    <div class="combo-wrap">
+                                        <input type="text" class="form-control" id="schoolSearch" placeholder="输入学校名，如：清华" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="schoolCombo">
+                                        <div class="combo-panel" id="schoolCombo" role="listbox" hidden></div>
+                                    </div>
+                                    <div class="form-text" id="schoolHint">不选学校则使用所选城市</div>
+                                </div>
+                            </div>
+
+                            <div class="row g-3 mt-2 align-items-end">
+                                <div class="col-xl-8">
+                                    <label class="form-label">选择算法 <span class="panel-hint" style="margin-left:8px;">高级算法按当前规模自动调整搜索预算</span></label>
+                                    <div class="chip-group">
+                                        <label class="chip">
+                                            <input type="checkbox" name="algorithms" value="greedy" checked>
+                                            <span class="chip-dot"><i class="fas fa-check"></i></span>
+                                            <span class="chip-label">贪心算法</span>
+                                        </label>
+                                        <label class="chip">
+                                            <input type="checkbox" name="algorithms" value="genetic" checked>
+                                            <span class="chip-dot"><i class="fas fa-check"></i></span>
+                                            <span class="chip-label">遗传算法</span>
+                                        </label>
+                                        <label class="chip">
+                                            <input type="checkbox" name="algorithms" value="round_robin" checked>
+                                            <span class="chip-dot"><i class="fas fa-check"></i></span>
+                                            <span class="chip-label">轮询算法</span>
+                                        </label>
+                                        <label class="chip">
+                                            <input type="checkbox" name="algorithms" value="damo_ets" checked>
+                                            <span class="chip-dot"><i class="fas fa-check"></i></span>
+                                            <span class="chip-label">DAMO-ETS 多目标能效</span>
+                                        </label>
+                                        <label class="chip">
+                                            <input type="checkbox" name="algorithms" value="nsga2">
+                                            <span class="chip-dot"><i class="fas fa-check"></i></span>
+                                            <span class="chip-label">NSGA-II 多目标进化</span>
+                                        </label>
+                                        <label class="chip">
+                                            <input type="checkbox" name="algorithms" value="moead">
+                                            <span class="chip-dot"><i class="fas fa-check"></i></span>
+                                            <span class="chip-label">MOEA-D 分解多目标</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-xl-4">
+                                    <label class="form-label" for="serverType">服务器类型</label>
+                                    <select class="form-select" id="serverType">
+                                        <option value="mixed">混合类型</option>
+                                        <option value="standard">标准服务器</option>
+                                        <option value="high_performance">高性能服务器</option>
+                                        <option value="gpu_server">GPU 服务器</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row mt-4">
+                                <div class="col-12">
+                                    <button type="submit" class="btn btn-primary btn-lg w-full" id="runBtn">
+                                        <i class="fas fa-play"></i> 开始运行
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+
+                        <div id="progressBar" class="mt-4" style="display: none;">
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+                            </div>
+                            <p class="text-center mt-2" id="progressText" style="margin:0;font-size:12.5px;color:var(--text-secondary);">正在初始化</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mt-3">
+                    <div class="card-header"><h5>大规模仿真提示</h5></div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item"><span><strong>标准模式</strong> 适用于小规模仿真（100 台以内），快速执行</span></li>
+                            <li class="list-group-item"><span><strong>分布式模式</strong> 适用于中等规模（100 - 500 台），多进程并行计算</span></li>
+                            <li class="list-group-item"><span><strong>大规模测试</strong> 适用于 500 - 1000 台，全面性能评估</span></li>
+                            <li class="list-group-item"><span><strong>并行工作器</strong> 建议设置为 CPU 核心数的一半，避免资源竞争</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>校园数据中心智能散热与算力调度系统</p>
+        </footer>
+    </div>
+
+    <div class="modal fade" id="pluginConfigModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="pluginConfigTitle">插件配置</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="关闭"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="pluginConfigForm">
+                        <div id="configFields"></div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="saveConfigBtn">保存配置</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="aiAssistant" class="ai-assistant">
+        <section class="ai-panel" id="aiPanel" hidden aria-live="polite">
+            <header class="ai-panel-head">
+                <div class="ai-panel-title">
+                    <img class="ai-head-avatar" src="/static/assistant/avatar.png" alt="">
+                    <span class="ai-dot" id="aiDot"></span>
+                    <strong>小助</strong>
+                    <span class="ai-sub" id="aiAssistantEngine">检测中…</span>
+                </div>
+                <div class="ai-panel-actions">
+                    <label class="ai-auto-toggle" title="开启后，配置类问题会先运行仿真再回答">
+                        <input type="checkbox" id="aiAutoRun">
+                        <span>自动试算</span>
+                    </label>
+                    <button type="button" class="ai-icon-btn" id="aiClose" title="关闭"><i class="fas fa-xmark"></i></button>
+                </div>
+            </header>
+            <div class="ai-messages" id="aiMessages"></div>
+            <div class="ai-quick" id="aiQuick">
+                <button type="button" data-prompt="当前排名如何？">当前排名</button>
+                <button type="button" data-prompt="什么时候性价比最高？">最佳时段</button>
+                <button type="button" data-prompt="温度低于60度怎么配置？">低温配置</button>
+                <button type="button" data-prompt="如果服务器增加到24台会怎样？">配置试算</button>
+                <button type="button" data-prompt="最近几次运行分别是什么？哪次最好？">运行历史</button>
+                <button type="button" data-prompt="这次和上一次比，哪个更好？">上次对比</button>
+            </div>
+            <form class="ai-input-row" id="aiForm">
+                <button type="button" class="ai-icon-btn" id="aiMic" title="手动语音转文字：点击开始，再点一次停止"><i class="fas fa-microphone"></i></button>
+                <input type="text" id="aiInput" placeholder="问我：哪个算法最省电？" autocomplete="off">
+                <button type="submit" class="ai-send" id="aiSend" title="发送"><i class="fas fa-paper-plane"></i></button>
+            </form>
+            <div class="ai-foot" id="aiFoot">说「你好，yumo」启动语音对话；说「结束」退出；麦克风按钮可手动转文字</div>
+        </section>
+        <button type="button" class="ai-orb" id="aiOrb" aria-label="打开智能助手">
+            <img class="ai-orb-img" src="/static/assistant/avatar.png" alt="">
+            <span class="ai-orb-ring"></span>
+        </button>
+    </div>
+
+    <script src="/bootstrap.bundle.min.js"></script>
+    <script src="/chart.js"></script>
+    <script src="/sw-register.js"></script>
+    <script src="/platform-utils.js"></script>
+    <script src="/perf-benchmark.js"></script>
+    <script src="/compat-tester.js"></script>
+    <script src="/app.js?v=20261024-radar4"></script>
+    <script src="/prediction.js?v=20261020-ui3"></script>
+    <script src="/assistant.js?v=20261020-ai91"></script>
+    <script src="/auth.js?v=20261020-ai91"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

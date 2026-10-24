@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+    <title>语音转文字 - 校园数据中心智能调度系统</title>
+    <meta name="description" content="实时语音识别转文字，使用浏览器语音识别能力">
+    <meta name="theme-color" content="#7c3aed">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="manifest" href="/manifest.json?v=20261020-ui3">
+    <link rel="apple-touch-icon" href="/static/icons/icon-192x192.png?v=20261020-ai91">
+    <link rel="icon" type="image/png" sizes="192x192" href="/static/icons/icon-192x192.png?v=20261020-ai91">
+    <link href="/bootstrap.min.css" rel="stylesheet">
+    <link href="/font-awesome.min.css" rel="stylesheet">
+    <link href="/cross_platform.css" rel="stylesheet">
+    <style>
+        :root {
+            --speech-primary: #7c3aed;
+            --speech-surface: #faf5ff;
+        }
+        .hero-speech {
+            background: linear-gradient(135deg, #4c1d95 0%, #7c3aed 50%, #a78bfa 100%);
+            color: white;
+            padding: 50px 0 40px;
+        }
+        .mic-ring {
+            width: 140px; height: 140px; border-radius: 50%;
+            background: rgba(255,255,255,0.12);
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 24px;
+            transition: all 0.3s;
+            border: 4px solid rgba(255,255,255,0.2);
+        }
+        .mic-ring.pulse {
+            animation: pulse 1.5s infinite;
+            border-color: #fbbf24;
+            background: rgba(251,191,36,0.18);
+        }
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(251,191,36,0.5); }
+            50%      { box-shadow: 0 0 0 24px rgba(251,191,36,0); }
+        }
+        .mic-ring i { font-size: 4rem; color: white; }
+        .result-box {
+            min-height: 180px; max-height: 400px; overflow-y: auto;
+            background: #fff; border-radius: 16px;
+            border: 1px solid #e2e8f0; padding: 20px;
+            font-size: 1.15rem; line-height: 1.9; color: #1e293b;
+            white-space: pre-wrap; word-break: break-word;
+            transition: border-color 0.3s;
+        }
+        .result-box.listening {
+            border-color: #7c3aed;
+            box-shadow: 0 0 0 3px rgba(124,58,237,0.1);
+        }
+        .result-box .interim {
+            color: #94a3b8; font-style: italic;
+        }
+        .lang-chip {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 8px 16px; border-radius: 10px;
+            border: 1px solid #e2e8f0; cursor: pointer;
+            font-size: 0.9rem; transition: all 0.2s;
+        }
+        .lang-chip:hover { border-color: #7c3aed; }
+        .lang-chip.active {
+            background: #7c3aed; color: #fff; border-color: #7c3aed;
+        }
+        .status-bar {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 18px; background: #f8fafc;
+            border-radius: 12px; margin-bottom: 16px;
+        }
+        .status-indicator {
+            width: 10px; height: 10px; border-radius: 50%; background: #94a3b8;
+        }
+        .status-indicator.active {
+            background: #ef4444; animation: blink 1s infinite;
+        }
+        .status-indicator.processing { background: #f59e0b; }
+        .status-indicator.done { background: #22c55e; }
+        @keyframes blink { 50% { opacity: 0.3; } }
+        .error-box {
+            background: #fef2f2; border: 1px solid #fecaca;
+            border-radius: 12px; padding: 14px 18px;
+            margin-top: 12px; display: none;
+        }
+        .error-box.show { display: flex; align-items: center; gap: 10px; }
+        .quick-actions {
+            display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px;
+        }
+        .quick-actions .btn { border-radius: 10px; }
+        .conf-badge {
+            background: #f0fdf4; color: #15803d;
+            padding: 4px 10px; border-radius: 6px; font-size: 0.78rem;
+        }
+        @media (max-width:767px) {
+            .mic-ring { width: 100px; height: 100px; }
+            .mic-ring i { font-size: 2.8rem; }
+            .result-box { min-height: 140px; font-size: 1rem; }
+            .lang-chip { padding: 6px 12px; font-size: 0.82rem; }
+        }
+    </style>
+    <link href="/theme.css?v=20261020-ui3" rel="stylesheet">
+</head>
+<body>
+<script>
+(function(){var u=navigator.userAgent;var h=document.documentElement;if(/Android/i.test(u))h.classList.add('android-platform');else if(/iPhone|iPad|iPod/i.test(u))h.classList.add('ios-platform');})();
+</script>
+    <section class="hero-speech text-center">
+        <div class="container">
+            <h2 class="fw-bold mb-2">语音转文字</h2>
+            <p class="mb-0" style="opacity:0.85">实时语音识别 · 多语言支持 · 离线可用</p>
+        </div>
+    </section>
+
+    <div class="container my-4" style="max-width:720px;">
+        
+        <div id="micRing" class="mic-ring">
+            <i class="fas fa-microphone"></i>
+        </div>
+        <div class="text-center mb-4">
+            <button id="toggleBtn" class="btn btn-lg px-5" style="border-radius:28px;background:#7c3aed;color:#fff;font-weight:600;" onclick="toggleListening()">
+                <i class="fas fa-play me-1"></i>开始录音
+            </button>
+        </div>
+
+        
+        <div class="status-bar">
+            <span class="status-indicator" id="statusIndicator"></span>
+            <small id="statusText" class="fw-semibold text-muted">就绪</small>
+            <small class="ms-auto text-muted" id="engineBadge">引擎: --</small>
+        </div>
+
+        
+        <div class="result-box" id="resultBox">
+            <span class="text-muted" id="placeholderText">点击"开始录音"按钮，对我说话...</span>
+        </div>
+
+        
+        <div class="error-box" id="errorBox">
+            <i class="fas fa-exclamation-triangle text-danger fs-5"></i>
+            <div>
+                <strong class="text-danger">识别失败</strong><br>
+                <small id="errorMessage" class="text-muted"></small>
+            </div>
+            <button class="btn btn-sm btn-outline-danger ms-auto" onclick="retryRecognition()">
+                <i class="fas fa-redo me-1"></i>重试
+            </button>
+        </div>
+
+        
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <span id="confidenceBadge" class="conf-badge" style="visibility:hidden;">置信度 --%</span>
+            <div class="quick-actions">
+                <button class="btn btn-sm btn-outline-secondary" onclick="copyText()"><i class="fas fa-copy me-1"></i>复制</button>
+                <button class="btn btn-sm btn-outline-secondary" onclick="clearText()"><i class="far fa-trash-alt me-1"></i>清空</button>
+                <button class="btn btn-sm btn-outline-primary" onclick="downloadText()"><i class="fas fa-download me-1"></i>导出</button>
+            </div>
+        </div>
+
+        
+        <h6 class="text-muted mt-4 mb-2 fw-bold">选择语言</h6>
+        <div class="d-flex flex-wrap gap-2" id="langChips"></div>
+
+        
+        <div class="text-center mt-4">
+            <small class="text-muted">
+                <i class="fas fa-shield-alt me-1"></i>语音由浏览器识别服务处理，不经过本系统服务器
+            </small>
+        </div>
+
+        <div class="text-center mt-3">
+            <a href="/" class="btn btn-outline-secondary btn-sm" style="border-radius:10px;">
+                <i class="fas fa-arrow-left me-1"></i>返回仪表盘
+            </a>
+        </div>
+    </div>
+
+    <footer style="background:#0f172a;color:#94a3b8;padding:20px 0;text-align:center;">
+        <small>校园数据中心智能散热与算力调度系统 | 语音识别基于 Web Speech API + Vosk</small>
+    </footer>
+
+    <script src="/bootstrap.bundle.min.js"></script>
+    <script src="/sw-register.js"></script>
+    <script src="/platform-utils.js"></script>
+    <script src="/speech_to_text.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

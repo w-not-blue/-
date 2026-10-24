@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>分布图 - 校园数据中心智能调度系统</title>
+    <meta name="theme-color" content="#ddebfa">
+    <meta name="color-scheme" content="light">
+    <link rel="icon" type="image/png" sizes="192x192" href="/static/icons/icon-192x192.png?v=20261020-ai91">
+    <link href="/bootstrap.min.css" rel="stylesheet">
+    <link href="/font-awesome.min.css" rel="stylesheet">
+    <link href="/theme.css?v=20261020-ui3" rel="stylesheet">
+    <link href="/map.css?v=20261020-ui3" rel="stylesheet">
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <img class="brand-logo" src="/logo.png?v=20261020-ai91" alt="">
+            <span class="brand-name">校园数据中心智能散热与<br>算力调度系统</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a class="nav-item" href="/"><span>实时仪表盘</span></a>
+            <a class="nav-item active" href="/map.html"><span>分布图</span></a>
+            <a class="nav-item" href="/download.html"><span>应用下载</span></a>
+            <a class="nav-item" href="/profile.html"><span>个人中心</span></a>
+        </nav>
+        <div class="sidebar-foot">
+            <div>版本 v1.0.0</div>
+            <div>2025 数据口径</div>
+        </div>
+    </aside>
+
+    <div class="app-main">
+        <header class="topbar">
+            <button class="sidebar-toggle" type="button" id="sidebarToggle" aria-label="展开导航">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1 class="page-title">分布图</h1>
+            <div class="topbar-right">
+                <span id="status" class="badge bg-success">系统在线</span>
+                <div class="user-menu dropdown" id="userMenu">
+                    <button class="user-menu-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="账号菜单">
+                        <span class="user-avatar" id="userAvatar">Y</span>
+                        <span class="user-name" id="userName">yumo</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><span class="dropdown-item-text user-menu-label">已登录：<strong id="menuUserName">yumo</strong></span></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/profile.html">个人中心</a></li>
+                        <li><button type="button" class="dropdown-item" id="logoutBtn">退出登录</button></li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+
+        <main class="content map-content">
+            <section class="map-summary">
+                <div><span>覆盖学校</span><strong id="mapSchoolCount">--</strong></div>
+                <div><span>覆盖城市</span><strong id="mapCityCount">--</strong></div>
+                <div><span>覆盖省份</span><strong id="mapProvinceCount">--</strong></div>
+                <div><span>当前图层</span><strong id="mapLayerLabel">学校密度</strong></div>
+            </section>
+
+            <section class="map-toolbar">
+                <div class="map-control">
+                    <label for="mapMetric">地图图层</label>
+                    <select id="mapMetric" class="form-select">
+                        <option value="school_count" selected>学校密度</option>
+                        <option value="avg_temp">年均气温</option>
+                        <option value="carbon_factor">区域碳因子</option>
+                        <option value="heat_risk">高温风险</option>
+                    </select>
+                </div>
+                <div class="map-search-wrap">
+                    <input id="mapGlobalSearch" class="map-search" type="text" placeholder="搜索城市或学校" autocomplete="off">
+                    <div id="mapSearchResults" class="map-search-results" hidden></div>
+                </div>
+                <button id="mapResetBtn" class="btn btn-secondary map-reset" type="button">回到全国</button>
+                <div class="map-legend" id="mapLegend">--</div>
+                <div class="map-source" id="mapSource">数据口径加载中...</div>
+            </section>
+
+            <section class="map-layout">
+                <div class="card map-card">
+                    <div class="card-body">
+                        <div id="chinaMap" class="china-map"></div>
+                        <div class="map-data-chip">2025 气象 · 2025 任务流</div>
+                        <div class="map-selected-card" id="mapSelectedCard" hidden></div>
+                        <div class="map-hint">滚轮缩放 · 拖拽平移 · 点击城市查看详情</div>
+                    </div>
+                </div>
+                <aside class="card map-detail-card">
+                    <div class="card-header">
+                        <h5>地区详情</h5>
+                        <span class="panel-hint" id="mapDetailHint">点击城市</span>
+                    </div>
+                    <div class="card-body" id="mapDetail">
+                        <div class="map-empty">点击城市或省份，查看当地气温、碳因子、推荐配置和学校列表。</div>
+                    </div>
+                </aside>
+            </section>
+
+            <section class="card map-ranking-card">
+                <div class="card-header">
+                    <h5>城市排行</h5>
+                    <span class="panel-hint" id="mapRankingHint">按学校密度</span>
+                </div>
+                <div class="card-body">
+                    <div id="mapCityRanking" class="map-ranking"></div>
+                </div>
+            </section>
+
+            <section class="card map-compare-card">
+                <div class="card-header">
+                    <h5>地区与学校对比</h5>
+                    <span class="panel-hint">最多选 5 个对象</span>
+                </div>
+                <div class="card-body">
+                    <div id="mapCompareChips" class="map-compare-chips"></div>
+                    <div id="mapCompareBody" class="map-compare-body">
+                        <div class="map-empty">在城市或学校详情里点“加入对比”。</div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="/bootstrap.bundle.min.js"></script>
+    <script src="/echarts.min.js"></script>
+    <script src="/auth.js?v=20261020-ai91"></script>
+    <script src="/map.js?v=20261020-ui3"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

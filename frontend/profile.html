@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人中心 - 校园数据中心智能调度系统</title>
+    <meta name="theme-color" content="#ddebfa">
+    <meta name="color-scheme" content="light">
+    <link rel="icon" type="image/png" sizes="192x192" href="/static/icons/icon-192x192.png?v=20261020-ai91">
+    <link href="/bootstrap.min.css" rel="stylesheet">
+    <link href="/font-awesome.min.css" rel="stylesheet">
+    <link href="/theme.css?v=20261020-ui3" rel="stylesheet">
+    <link href="/auth.css?v=20261020-ui3" rel="stylesheet">
+    <link href="/profile.css?v=20261020-ai91" rel="stylesheet">
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <img class="brand-logo" src="/logo.png?v=20261020-ai91" alt="">
+            <span class="brand-name">校园数据中心智能散热与<br>算力调度系统</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a class="nav-item" href="/"><span>实时仪表盘</span></a>
+            <a class="nav-item" href="/map.html"><span>分布图</span></a>
+            <a class="nav-item active" href="/profile.html"><span>个人中心</span></a>
+            <a class="nav-item" href="/speech_to_text.html"><span>语音转文字</span></a>
+            <a class="nav-item" href="/download.html"><span>应用下载</span></a>
+        </nav>
+        <div class="sidebar-foot">
+            <div>版本 v1.0.0</div>
+            <div>本地账号中心</div>
+        </div>
+    </aside>
+
+    <div class="app-main">
+        <header class="topbar">
+            <button class="sidebar-toggle" type="button" id="sidebarToggle" aria-label="展开导航">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1 class="page-title">个人中心</h1>
+            <div class="topbar-right">
+                <span id="status" class="badge bg-success">系统在线</span>
+                <div class="user-menu dropdown" id="userMenu">
+                    <button class="user-menu-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="账号菜单">
+                        <span class="user-avatar" id="userAvatar">Y</span>
+                        <span class="user-name" id="userName">yumo</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><span class="dropdown-item-text user-menu-label">已登录：<strong id="menuUserName">yumo</strong></span></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/profile.html">个人中心</a></li>
+                        <li><button type="button" class="dropdown-item" id="logoutBtn">退出登录</button></li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+
+        <main class="content profile-content">
+            <section class="profile-hero">
+                <div class="profile-avatar" id="profileAvatar">Y</div>
+                <div class="profile-hero-copy">
+                    <div class="profile-eyebrow">ACCOUNT CENTER</div>
+                    <h2 id="profileUsername">yumo</h2>
+                    <p id="profileSubtitle">本地账号 · 校园数据中心智能散热与算力调度系统</p>
+                </div>
+            </section>
+
+            <div class="profile-grid">
+                <section class="card profile-card">
+                    <div class="card-header">
+                        <h5>账号信息</h5>
+                        <span class="panel-hint" id="profileRole">本地账号</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="profile-info-list">
+                            <div><span>用户名</span><strong id="profileInfoUsername">--</strong></div>
+                            <div><span>账号创建</span><strong id="profileCreated">--</strong></div>
+                            <div><span>最近登录</span><strong id="profileLastLogin">--</strong></div>
+                            <div><span>账号类型</span><strong>本地管理员</strong></div>
+                        </div>
+                        <button type="button" class="btn btn-outline-secondary profile-logout" id="profileLogoutBtn">
+                            <i class="fas fa-sign-out-alt"></i> 退出登录
+                        </button>
+                    </div>
+                </section>
+
+                <section class="card profile-card">
+                    <div class="card-header">
+                        <h5>修改密码</h5>
+                        <span class="panel-hint">建议定期更新</span>
+                    </div>
+                    <div class="card-body">
+                        <div id="passwordAlert" class="auth-alert" hidden></div>
+                        <form id="passwordForm" novalidate>
+                            <div class="auth-field">
+                                <label for="currentPassword">当前密码</label>
+                                <div class="auth-input-wrap">
+                                    <i class="fas fa-lock"></i>
+                                    <input type="password" id="currentPassword" name="current_password" placeholder="请输入当前密码" autocomplete="current-password" maxlength="64">
+                                    <button type="button" class="password-toggle" data-toggle-password="currentPassword" title="显示或隐藏密码" aria-label="显示或隐藏密码">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="auth-field">
+                                <label for="newPassword">新密码</label>
+                                <div class="auth-input-wrap">
+                                    <i class="fas fa-key"></i>
+                                    <input type="password" id="newPassword" name="new_password" placeholder="至少 6 位新密码" autocomplete="new-password" maxlength="64">
+                                    <button type="button" class="password-toggle" data-toggle-password="newPassword" title="显示或隐藏密码" aria-label="显示或隐藏密码">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="auth-field">
+                                <label for="confirmPassword">确认新密码</label>
+                                <div class="auth-input-wrap">
+                                    <i class="fas fa-key"></i>
+                                    <input type="password" id="confirmPassword" name="confirm_password" placeholder="请再次输入新密码" autocomplete="new-password" maxlength="64">
+                                    <button type="button" class="password-toggle" data-toggle-password="confirmPassword" title="显示或隐藏密码" aria-label="显示或隐藏密码">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <button type="submit" class="auth-submit" id="passwordSubmit">
+                                <span id="passwordSubmitLabel">保存新密码</span>
+                                <i class="fas fa-check"></i>
+                            </button>
+                        </form>
+                    </div>
+                </section>
+            </div>
+
+            <div class="profile-links">
+                <a class="btn btn-outline-secondary" href="/map.html"><i class="fas fa-globe-asia"></i> 分布图</a>
+                <a class="btn btn-outline-secondary" href="/speech_to_text.html"><i class="fas fa-microphone"></i> 语音转文字</a>
+                <a class="btn btn-outline-secondary" href="/download.html"><i class="fas fa-download"></i> 客户端下载</a>
+            </div>
+        </main>
+    </div>
+
+    <script src="/bootstrap.bundle.min.js"></script>
+    <script src="/auth.js?v=20261020-ai91"></script>
+    <script src="/profile.js?v=20261020-ai91"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
