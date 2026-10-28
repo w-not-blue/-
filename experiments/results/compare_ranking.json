@@ -1,0 +1,133 @@
+{
+  "seed": 42,
+  "service_rate_floor": 0.98,
+  "generated_at": "2026-10-15 14:57:33",
+  "traces": [
+    {
+      "scenario": {
+        "num_servers": 40,
+        "sim_hours": 24
+      },
+      "controlled": true,
+      "ranking": {
+        "rule": "服务率 >= 98% 的前提下，按单位服务负载能耗升序排名",
+        "service_rate_floor": 0.98,
+        "eligible": [
+          {
+            "algorithm": "damo_ets",
+            "service_rate": 1.0,
+            "energy_per_served_load": 7.3163,
+            "max_temp": 49.625,
+            "rank": 1
+          },
+          {
+            "algorithm": "genetic",
+            "service_rate": 1.0,
+            "energy_per_served_load": 7.4884,
+            "max_temp": 49.46314250259526,
+            "rank": 2
+          },
+          {
+            "algorithm": "round_robin",
+            "service_rate": 1.0,
+            "energy_per_served_load": 7.7137,
+            "max_temp": 44.217578632405846,
+            "rank": 3
+          },
+          {
+            "algorithm": "greedy",
+            "service_rate": 0.9965,
+            "energy_per_served_load": 7.7771,
+            "max_temp": 41.4874156616684,
+            "rank": 4
+          }
+        ],
+        "excluded": [],
+        "best": "damo_ets",
+        "best_metrics": {
+          "algorithm": "damo_ets",
+          "energy_per_served_load": 7.3163,
+          "service_rate": 1.0,
+          "avg_pue": 1.3624048085280747,
+          "max_temp": 49.625,
+          "cost_cny": null
+        },
+        "note": "排名基于单位服务负载能耗，已排除服务率不足的算法"
+      },
+      "metadata": {
+        "data_mode": "synthetic",
+        "ambient_source": "synthetic-sine",
+        "sla_slack": 1.5,
+        "completion_mode": "service_based",
+        "service_rate_floor": 0.98,
+        "price_source": null,
+        "scenario_digest": "055cfe38491e3216",
+        "scenario_tasks": 285,
+        "scenario_source": "synthetic"
+      }
+    },
+    {
+      "scenario": {
+        "num_servers": 80,
+        "sim_hours": 24
+      },
+      "controlled": true,
+      "ranking": {
+        "rule": "服务率 >= 98% 的前提下，按单位服务负载能耗升序排名",
+        "service_rate_floor": 0.98,
+        "eligible": [
+          {
+            "algorithm": "damo_ets",
+            "service_rate": 1.0,
+            "energy_per_served_load": 11.4742,
+            "max_temp": 49.625,
+            "rank": 1
+          },
+          {
+            "algorithm": "genetic",
+            "service_rate": 1.0,
+            "energy_per_served_load": 11.6212,
+            "max_temp": 49.8125,
+            "rank": 2
+          },
+          {
+            "algorithm": "greedy",
+            "service_rate": 1.0,
+            "energy_per_served_load": 12.0566,
+            "max_temp": 40.109923888189314,
+            "rank": 3
+          },
+          {
+            "algorithm": "round_robin",
+            "service_rate": 1.0,
+            "energy_per_served_load": 12.0718,
+            "max_temp": 40.61204092014727,
+            "rank": 4
+          }
+        ],
+        "excluded": [],
+        "best": "damo_ets",
+        "best_metrics": {
+          "algorithm": "damo_ets",
+          "energy_per_served_load": 11.4742,
+          "service_rate": 1.0,
+          "avg_pue": 1.3887585534490923,
+          "max_temp": 49.625,
+          "cost_cny": null
+        },
+        "note": "排名基于单位服务负载能耗，已排除服务率不足的算法"
+      },
+      "metadata": {
+        "data_mode": "synthetic",
+        "ambient_source": "synthetic-sine",
+        "sla_slack": 1.5,
+        "completion_mode": "service_based",
+        "service_rate_floor": 0.98,
+        "price_source": null,
+        "scenario_digest": "055cfe38491e3216",
+        "scenario_tasks": 285,
+        "scenario_source": "synthetic"
+      }
+    }
+  ]
+}
