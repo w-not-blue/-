@@ -1,0 +1,28 @@
+{
+  "data_mode": "catalog",
+  "ambient_source": "catalog",
+  "sla_slack": 1.5,
+  "completion_mode": "service_based",
+  "service_rate_floor": 0.98,
+  "emission_source": "catalog",
+  "site_id": "北京市",
+  "site_province": "北京市",
+  "emission_region": "华北",
+  "scenario_digest": "61194abc3a01e716",
+  "scenario_tasks": 788,
+  "scenario_source": "catalog",
+  "algorithms": [
+    "greedy",
+    "genetic",
+    "round_robin",
+    "damo_ets",
+    "nsga2",
+    "moead"
+  ],
+  "num_servers": 10,
+  "simulation_hours": 24,
+  "controlled": true,
+  "run_id": "20261024-213102-b805ae",
+  "origin": "web",
+  "generated_at": "2026-10-24 21:31:20"
+}
