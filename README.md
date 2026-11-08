@@ -89,6 +89,18 @@ http://127.0.0.1:5000
 
 解压后双击 `CampusDataCenterScheduler.exe`，无需安装。
 
+### 下载页里的安装包放在哪
+
+「应用下载」页面不是把文件塞在网页里，而是后端到磁盘上找。仓库的 `downloads/` 目录已经放好五份：
+
+| 文件 | 说明 |
+|---|---|
+| `CampusDataCenterScheduler_Setup_v1.0.0.exe` | Windows x64 安装程序，41.23 MB |
+| `CampusDataCenterScheduler_v1.0.0_portable.zip` | Windows ARM64 便携包，33.69 MB |
+| `..._macos.dmg` / `..._android.apk` / `..._ios.ipa` | 占位包，各约 0.37 MB，内含说明文件，不是可安装程序 |
+
+换版本时把同名文件丢进 `downloads/` 即可，接口会自动读真实文件大小并计算 SHA256，页面上的"大小"和下载后的校验都会跟着变。如果文件缺失，下载按钮会提示"安装包暂未就绪 (HTTP 404)"，那是路径没找到，不是接口坏了。
+
 ## 五、环境变量
 
 复制 `.env.example` 为 `.env`，或直接设系统环境变量。**不配置也能跑**，只是 AI 助手会走本地规则模式。
