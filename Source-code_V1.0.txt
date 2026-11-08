@@ -549,8 +549,8 @@ logging:
  21|
  22|
  23|def parse_args() -> argparse.Namespace:
- 24|    parser = argparse.ArgumentParser(description="校园数据中心智能调度系
-   |    统 - 仿真主入口")
+ 24|    parser = argparse.ArgumentParser(description="校园数据中心智能散热与
+   |    算力调度系统 - 仿真主入口")
  25|    parser.add_argument("--num-servers", type=int, default=None,
  26|                        help="服务器数量（默认取 config/default.yaml 的 s
    |    imulation.num_servers）")
@@ -2959,7 +2959,8 @@ logging:
    |    x_temp") is not None else "",
 283|    )
 284|
-285|CHAT_SYSTEM = """你是"校园数据中心智能调度系统"的 AI 助手（名字：小助）。
+285|CHAT_SYSTEM = """你是"校园数据中心智能散热与算力调度系统"的 AI 助手（名字
+   |    ：小助）。
 286|规则：
 287|1. 只依据下面提供的"当前数据"回答，不得编造数字；数据里没有的项直接说"当前
    |    数据没有这一项"。
@@ -10338,7 +10339,7 @@ logging:
 47. src/sdk/client.py
 ================================================================================
   1|"""
-  2|校园数据中心智能调度系统 - SDK客户端 v1.0
+  2|校园数据中心智能散热与算力调度系统 - SDK客户端 v1.0
   3|
   4|提供简洁的API接口，支持多环境自适应对接。
   5|
