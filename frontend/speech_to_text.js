@@ -7,6 +7,19 @@ let currentLang = 'zh-CN';
 let finalTranscript = '';
 let interimTranscript = '';
 let restartTimer = null;
+let restartAttempts = 0;      // 连续自动恢复次数
+let hadSpeech = false;        // 本轮是否已经识别到过内容
+
+// 这些错误一旦出现就无法继续，必须让用户处理
+const FATAL_ERRORS = {
+    'not-allowed': '麦克风权限被拒绝，请在浏览器地址栏的站点设置中允许麦克风访问。',
+    'service-not-allowed': '浏览器语音服务被禁用，请检查浏览器设置。',
+    'audio-capture': '未检测到可用的麦克风设备，请插好麦克风后重试。',
+    'language-not-supported': '当前浏览器不支持所选语言，请换一种语言。'
+};
+
+// 这些错误是可恢复的：静音太久、网络抖动、会话被浏览器主动结束
+const RECOVERABLE_ERRORS = ['no-speech', 'network', 'aborted'];
 
 const LANGUAGES = {
     'zh-CN': { name: '中文普通话', webCode: 'zh-CN', emoji: '🇨🇳' },
@@ -78,8 +91,22 @@ function startListening() {
     }
 
     hideError();
-    const langInfo = LANGUAGES[currentLang] || LANGUAGES['zh-CN'];
     manualStop = false;
+    restartAttempts = 0;
+    hadSpeech = false;
+    beginRecognition();
+}
+
+/* 创建一个识别实例并启动。每次重启都新建实例：
+   浏览器在静音或网络抖动后会自己结束会话，复用旧实例容易出现 InvalidStateError。 */
+function beginRecognition() {
+    if (manualStop) return;
+    const langInfo = LANGUAGES[currentLang] || LANGUAGES['zh-CN'];
+
+    // 丢掉旧实例的监听，避免它结束时再触发一次重启
+    detachRecognition();
+    clearTimeout(restartTimer);
+    restartTimer = null;
 
     try {
         recognition = new SpeechRecognitionAPI();
@@ -106,6 +133,10 @@ function startListening() {
                     interim += result[0].transcript;
                 }
             }
+            if (finalTranscript || interim) {
+                hadSpeech = true;
+                restartAttempts = 0;   // 有内容就说明链路正常，重置恢复计数
+            }
             interimTranscript = interim;
             updateResultBox(finalTranscript, interimTranscript);
             if (confidence > 0) {
@@ -117,26 +148,47 @@ function startListening() {
             handleRecognitionError(event);
         };
 
+        // 浏览器自己结束会话（静音超时、网络中断）时继续听，只有用户点停止才真停
         recognition.onend = function () {
-            if (isListening && !manualStop) {
-                scheduleRestart();
-            } else {
+            if (manualStop) {
                 isListening = false;
                 updateUIForIdle();
-                if (!manualStop) setStatus('idle', '识别已停止');
+                return;
             }
+            scheduleRestart();
         };
 
+        // 连续模式下说话停顿也会触发 speechend，这里不要切到"处理中"，保持聆听状态
         recognition.onspeechend = function () {
-            setStatus('processing', '处理中...');
+            if (!manualStop) setStatus('listening', '正在聆听...');
         };
 
         recognition.start();
     } catch (error) {
-        showError('无法启动语音识别：' + (error.message || '请检查麦克风权限'));
+        const msg = error && error.message ? error.message : '';
+        if (/already started|InvalidStateError/i.test(msg)) {
+            scheduleRestart();          // 实例还在启动中，稍后重试
+            return;
+        }
+        showError('无法启动语音识别：' + (msg || '请检查麦克风权限'));
         setStatus('error', '启动失败');
+        manualStop = true;
+        isListening = false;
         updateUIForIdle();
     }
+}
+
+function detachRecognition() {
+    if (!recognition) return;
+    try {
+        recognition.onstart = null;
+        recognition.onresult = null;
+        recognition.onerror = null;
+        recognition.onend = null;
+        recognition.onspeechend = null;
+        recognition.abort();
+    } catch (error) {}
+    recognition = null;
 }
 
 function stopListening() {
@@ -144,45 +196,60 @@ function stopListening() {
     isListening = false;
     clearTimeout(restartTimer);
     restartTimer = null;
-    if (recognition) {
-        try { recognition.stop(); } catch (error) {}
-    }
+    detachRecognition();
     updateUIForIdle();
     setStatus('idle', '已停止');
 }
 
+/* 自动恢复：浏览器结束会话后 0.3~1.5 秒内重新开始 */
 function scheduleRestart() {
+    if (manualStop) return;
     clearTimeout(restartTimer);
+    restartAttempts += 1;
+
+    if (restartAttempts > 20) {
+        manualStop = true;
+        isListening = false;
+        updateUIForIdle();
+        setStatus('error', '识别中断');
+        showError('语音识别多次中断，请检查麦克风是否被其他程序占用、网络是否正常，然后再点开始录音。');
+        return;
+    }
+
+    const delay = Math.min(300 + restartAttempts * 250, 1500);
+    setStatus('listening', '正在聆听...');
     restartTimer = setTimeout(function () {
-        if (!isListening || manualStop || !recognition) return;
-        try {
-            recognition.start();
-        } catch (error) {
-            isListening = false;
-            updateUIForIdle();
-            setStatus('error', '自动恢复失败');
-        }
-    }, 300);
+        if (manualStop) return;
+        beginRecognition();
+    }, delay);
 }
 
 function handleRecognitionError(event) {
-    manualStop = true;
-    isListening = false;
-    updateUIForIdle();
+    const code = (event && event.error) || 'unknown';
 
-    const code = event.error || 'unknown';
-    const messages = {
-        'not-allowed': '麦克风权限被拒绝，请在浏览器地址栏的站点设置中允许麦克风访问。',
-        'service-not-allowed': '浏览器语音服务被禁用，请检查浏览器设置。',
-        'no-speech': '没有检测到语音，请靠近麦克风重新开始。',
-        'audio-capture': '未检测到可用的麦克风设备。',
-        'network': '浏览器语音识别服务不可用，请检查网络后重试。',
-        'aborted': '语音识别已中断，请重新开始。'
-    };
-    if (code === 'aborted' && manualStop) return;
-    const message = messages[code] || ('识别失败：' + code);
-    showError(message);
-    setStatus('error', '识别失败');
+    // 致命错误：停下来并且提示用户处理
+    if (FATAL_ERRORS[code]) {
+        manualStop = true;
+        isListening = false;
+        clearTimeout(restartTimer);
+        updateUIForIdle();
+        setStatus('error', '识别失败');
+        showError(FATAL_ERRORS[code]);
+        return;
+    }
+
+    // 可恢复错误：保持聆听状态，交给 onend 触发自动重启
+    if (RECOVERABLE_ERRORS.indexOf(code) >= 0) {
+        if (code === 'no-speech') {
+            setStatus('listening', '正在聆听...（未检测到语音）');
+        } else if (code === 'network') {
+            setStatus('listening', '网络波动，正在重连语音服务...');
+        }
+        return;
+    }
+
+    // 未知错误也不直接停：记录后让 onend 决定是否重启
+    setStatus('listening', '正在聆听...');
 }
 
 function retryRecognition() {
