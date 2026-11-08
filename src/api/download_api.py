@@ -51,11 +51,32 @@ _PORTABLE_ZIP = os.path.join(_OUTPUT_DIR, _PORTABLE_BASENAME)
 
 
 def _portable_zip_path() -> Optional[str]:
-    for folder in (_RELEASES_DIR, _OUTPUT_DIR, _DOWNLOAD_DIR):
+    for folder in _search_dirs():
         candidate = os.path.join(folder, _PORTABLE_BASENAME)
         if os.path.isfile(candidate):
             return candidate
     return None
+
+
+def _search_dirs() -> tuple:
+    """安装包可能出现的目录。
+
+    除构建产物目录外，也兼容两种常见摆放：
+      * 仓库内 releases/ 与 downloads/（便于随仓库分发占位包）
+      * 上一级的 02_启动器与安装包/（提交包里安装程序所在目录）
+    """
+    return (
+        _RELEASES_DIR,
+        os.path.join(_PROJECT_ROOT, 'releases'),
+        _DOWNLOAD_DIR,
+        _OUTPUT_DIR,
+        os.path.join(_OUTPUT_DIR, '02_启动器与安装包'),
+        os.path.join(_OUTPUT_DIR, 'downloads'),
+    )
+
+
+def _default_app_type(platform: str) -> str:
+    return 'desktop' if platform in ('windows', 'windows_arm', 'macos') else 'mobile'
 
 # ============================================================================
 # 配置
@@ -119,7 +140,7 @@ def _resolve_file_path(platform: str, filename: str) -> Optional[str]:
     if not basename:
         return None
 
-    for d in (_RELEASES_DIR, _OUTPUT_DIR, _DOWNLOAD_DIR):
+    for d in _search_dirs():
         candidate = os.path.join(d, basename)
         if os.path.isfile(candidate):
             return candidate
@@ -168,6 +189,10 @@ def _app_metadata(app_key: str) -> Dict[str, Any]:
     if path:
         item['sha256'] = _file_sha256(path)
         item['size_mb'] = _file_size_mb(path)
+    else:
+        # 找不到实际文件时不要回落到写死的旧数值, 直接不返回这两个字段
+        item.pop('sha256', None)
+        item.pop('size_mb', None)
     return item
 
 
@@ -224,11 +249,16 @@ def verify_download():
             pattern=r'^(android|ios|windows|windows_arm|macos)$',
             default='', name='platform'
         )
-        app_type = validate_str(
-            data.get('app_type', ''), max_len=32,
-            pattern=r'^(mobile|desktop|windows)$',
-            default='', name='app_type'
-        )
+        app_type_raw = (data.get('app_type') or '').strip()
+        if app_type_raw:
+            app_type = validate_str(
+                app_type_raw, max_len=32,
+                pattern=r'^(mobile|desktop|windows)$',
+                default='', name='app_type'
+            )
+        else:
+            # 前端偶尔只传 platform, 这里按平台推断, 不再当作错误
+            app_type = _default_app_type(platform)
         filename = sanitize_filename(data.get('filename', ''), max_len=128)
 
         if not platform or not filename:
@@ -260,6 +290,9 @@ def verify_download():
             'file_size': file_size,
             'message': '验证通过' if file_available else '验证通过, 但安装包暂未就绪'
         })
+    except ValueError as e:
+        logger.warning(f"Download verify 参数不合法: {e}")
+        return jsonify({'success': False, 'message': f'参数不合法: {e}'}), 400
     except Exception as e:
         logger.error(f"Download verify error: {e}")
         return jsonify({'success': False, 'message': '服务器错误'}), 500
@@ -419,7 +452,7 @@ def download_file_legacy(platform: str, arch: str):
             return jsonify({'success': False, 'message': '无此安装包'}), 404
 
         file_path = None
-        for d in (_RELEASES_DIR, _OUTPUT_DIR, _DOWNLOAD_DIR):
+        for d in _search_dirs():
             candidate = os.path.join(d, basename)
             if os.path.isfile(candidate):
                 file_path = candidate
@@ -479,7 +512,7 @@ APP_VERSIONS = {
     'windows_x64': {
         'version': 'v1.0.0',
         'build': '1000',
-        'size_mb': 90.07,
+        'size_mb': 41.23,
         'min_os': 'Windows 10 / Windows 11',
         'arch': 'x64',
         'release_date': '2026.10.18',
@@ -495,7 +528,7 @@ APP_VERSIONS = {
     'windows_arm64': {
         'version': 'v1.0.0',
         'build': '1000',
-        'size_mb': 90.06,
+        'size_mb': 33.69,
         'min_os': 'Windows 11 ARM64',
         'arch': 'ARM64 / Python 3.12',
         'release_date': '2026.10.18',
@@ -701,8 +734,8 @@ def reset_stats():
     try:
         valid_key = os.environ.get('DCS_ADMIN_KEY')
         if not valid_key:
-            logger.error("DCS_ADMIN_KEY environment variable not set")
-            return jsonify({'success': False, 'message': '服务配置错误'}), 500
+            logger.warning("DCS_ADMIN_KEY 未配置, 统计重置接口未启用")
+            return jsonify({'success': False, 'message': '管理接口未启用（未配置 DCS_ADMIN_KEY）'}), 403
         api_key = request.headers.get('X-API-Key', '')
         if not api_key or api_key != valid_key:
             logger.warning(f"Unauthorized stats reset attempt from {request.remote_addr}")
