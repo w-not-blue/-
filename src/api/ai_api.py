@@ -282,7 +282,7 @@ def _optimization_reply(job: Dict[str, Any]) -> str:
         ("，峰值温度不超过 %.1f℃" % params["max_temp"]) if params.get("max_temp") is not None else "",
     )
 
-CHAT_SYSTEM = """你是"校园数据中心智能调度系统"的 AI 助手（名字：小助）。
+CHAT_SYSTEM = """你是"校园数据中心智能散热与算力调度系统"的 AI 助手（名字：小助）。
 规则：
 1. 只依据下面提供的"当前数据"回答，不得编造数字；数据里没有的项直接说"当前数据没有这一项"。
 2. 用中文自然语言回答，**不要出现内部字段名**（如 max_temp、avg_pue、energy_per_served_load、service_rate），

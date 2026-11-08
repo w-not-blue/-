@@ -21,7 +21,7 @@ from src.services import run_store
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="校园数据中心智能调度系统 - 仿真主入口")
+    parser = argparse.ArgumentParser(description="校园数据中心智能散热与算力调度系统 - 仿真主入口")
     parser.add_argument("--num-servers", type=int, default=None,
                         help="服务器数量（默认取 config/default.yaml 的 simulation.num_servers）")
     parser.add_argument("--hours", type=int, default=None,
