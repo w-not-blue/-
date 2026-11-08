@@ -1,7 +1,7 @@
 """
 RLSchedulerPlugin — Stable Baselines3 PPO 强化学习调度器 (GitHub Skills 集成)
 
-继承 ``PluginBase`` v2.0，实现:
+继承 ``PluginBase`` v1.0，实现:
 
     * ``train``     — 用 PPO 在 DataCenterGymEnv 上训练，保存模型到 ``model_path``
     * ``predict``   — 加载已训练模型，对一批 ``tasks`` 选出 server_id

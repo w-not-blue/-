@@ -1,7 +1,7 @@
 """
-仿真插件 v2.0 — 数据中心智能调度仿真
+仿真插件 v1.0 — 数据中心智能调度仿真
 
-继承自 PluginBase v2.0 标准接口，实现:
+继承自 PluginBase v1.0 标准接口，实现:
     - PluginManifest 完整清单
     - validate_config 配置验证
     - pre_execute 参数预处理

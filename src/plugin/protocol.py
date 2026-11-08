@@ -1,5 +1,5 @@
 """
-插件系统标准化接口协议 v2.0
+插件系统标准化接口协议 v1.0
 Plugin System Standardized Protocol & Data Types
 
 本模块定义插件系统的核心数据类型和接口规范，确保:

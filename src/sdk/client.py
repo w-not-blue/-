@@ -1,5 +1,5 @@
 """
-校园数据中心智能调度系统 - SDK客户端 v2.0
+校园数据中心智能调度系统 - SDK客户端 v1.0
 
 提供简洁的API接口，支持多环境自适应对接。
 
@@ -171,7 +171,7 @@ class RetryableSession:
 
 class DataCenterSimulatorSDK:
     """
-    数据中心仿真SDK v2.0
+    数据中心仿真SDK v1.0
     
     支持三种运行模式:
     - local: 纯本地调用

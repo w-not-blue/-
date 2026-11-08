@@ -303,7 +303,7 @@ def check_deps(args):
 def create_parser():
     """创建命令行解析器"""
     parser = argparse.ArgumentParser(
-        description='校园数据中心智能散热与算力调度系统 - CLI工具 v2.0',
+        description='校园数据中心智能散热与算力调度系统 - CLI工具 v1.0',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
 
