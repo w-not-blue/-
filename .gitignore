@@ -39,6 +39,9 @@ data/raw/
 config/deepseek.key
 .env
 
+# ---- 运行日志（含客户端 UA / IP，不入库）----
+data/download_stats.json
+
 # ---- 账号库与运行索引（含个人账号信息）----
 data/users.db
 data/users.db-shm
